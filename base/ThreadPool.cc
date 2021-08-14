@@ -3,28 +3,6 @@
 namespace LL
 {
 
-void ThreadPool::threadPoolFunc()
-{
-    for(;;)
-    {
-        std::packaged_task<void()> task;
-        {
-            std::unique_lock<std::mutex> m(_mutex);
-            _cond.wait(m ,
-                    [this] {return _stop || !_task_queue.empty();});
-
-            if(_stop && _task_queue.empty())
-            {
-                return;
-            }
-
-            task = std::move(this->_task_queue.front());
-            this->_task_queue.pop();
-        }
-        task();
-    }
-}
-
 ThreadPool::ThreadPool(size_t s)
     :_stop(false)
 {
@@ -47,33 +25,26 @@ ThreadPool::~ThreadPool()
     }
 }
 
-//void ThreadPool::start()
-//{
-//}
-
-template<typename F, typename ...Args>
-auto ThreadPool::enQueue(F&& f, Args&& ...args)
+void ThreadPool::threadPoolFunc()
 {
-    using result_type = std::invoke_result_t<F, Args...>;
-    std::packaged_task<result_type()> task(std::bind(std::forward<F>(f), std::forward<Args>(args)...)
-            );
-    std::future<result_type> ret = task.get_future();
+    for(;;)
     {
-        std::unique_lock<std::mutex> m(this->_mutex);
-        if(_stop)
+        std::packaged_task<void()> task;
         {
-           throw std::runtime_error("enqueue on stopped ThreadPool");
-        }
-        this->_task_queue.emplace(std::move(task));
-    }
-    this->_cond.notify_one();
-    return ret;
-}
+            std::unique_lock<std::mutex> m(_mutex);
+            _cond.wait(m ,
+                    [this] {return _stop || !_task_queue.empty();});
 
-size_t ThreadPool::getQueueSize()
-{
-    std::unique_lock<std::mutex> m(this->_mutex);
-    return _task_queue.size();
+            if(_stop && _task_queue.empty())
+            {
+                return;
+            }
+
+            task = std::move(this->_task_queue.front());
+            this->_task_queue.pop();
+        }
+        task();
+    }
 }
 
 }

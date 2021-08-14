@@ -98,6 +98,7 @@ void LoggingThread::threadfunc()
             logfile.writeFileUnlock(it->data(), it->getCurSize());
             if(index < copy_vec.size())
             {
+                it->clear();
                 copy_vec[index++].swap(it);
             }
         }
