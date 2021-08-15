@@ -36,7 +36,7 @@ void TcpServer::start()
     if(_socket.Listen() < 0)
     {
         FATAL_OUT << "socket listen error";
-        ::exit(2); 
+        ::exit(2);
     }
 
     _evenloop_m.putEventLoopToThreadPool(this->_thread_pool);
@@ -78,13 +78,25 @@ void TcpServer::addConnect()
     {
         return;
     }
-   
+
     auto id = getTcpConnectId();
-    _conn_m.try_emplace(id, id, this, peer, pCh);
+    auto ret = _conn_m.try_emplace(id, id, this, peer, pCh);
+    if(!ret.second)
+    {
+        ERROR_OUT << "addConnect failed";
+        return;
+    }
+
+    if(_recv_call)
+    {
+        ret.first->second.setRecvCallback(_recv_call);
+    }
 }
 
 void TcpServer::removeConnect(uint64_t id)
 {
+    std::unique_lock<std::mutex> m(_m);
+
     auto iter = _conn_m.find(id);
     if(_conn_m.end() == iter)
         return;
@@ -96,9 +108,11 @@ void TcpServer::removeConnect(uint64_t id)
 uint64_t TcpServer::getTcpConnectId()
 {
     static std::atomic_uint64_t ids(1);
-    
+
     uint64_t ret = ids.fetch_add(1);
 
     return ret;
 }
+
+
 }

@@ -1,15 +1,16 @@
 project(net)
 
 add_library(${PROJECT_NAME} STATIC
-    Buffer.cpp
-    Channel.cpp
-    ChannelManager.cpp
-    Epoll.cpp
-    EventLoop.cpp
-    InetAddress.cpp
-    Socket.cpp
-    TcpConnect.cpp
-    TcpServer.cpp
+    Buffer.cc
+    Channel.cc
+    ChannelManager.cc
+    Epoll.cc
+    EventLoop.cc
+    InetAddress.cc
+    Socket.cc
+    TcpConnect.cc
+    TcpServer.cc
+    TcpClient.cc
     )
 
 add_library(light_net ALIAS ${PROJECT_NAME})
