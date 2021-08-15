@@ -21,7 +21,7 @@ InetAddress::InetAddress(uint16_t port, in_addr_t in_addr)
 
 InetAddress::InetAddress(const std::string& ip, uint16_t port) : InetAddress(port, 0)
 {
-    ::inet_pton(AF_INET, ip.data(), &_addr.sin_addr);
+    ::inet_pton(AF_INET, ip.c_str(), &_addr.sin_addr);
 }
 
 InetAddress::~InetAddress()

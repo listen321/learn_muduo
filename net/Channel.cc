@@ -116,6 +116,7 @@ void Channel::removeChannel()
 
 void Channel::updateEvent()
 {
+    this->_p_loop->updateEvent(*this);
 }
 
 }

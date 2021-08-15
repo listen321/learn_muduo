@@ -20,11 +20,22 @@ class TcpClient
         void start();
         int getFd() { return _fd; }
 
+        void sendMsg(const std::string& s);
+        void peerClose();
+        void shutdownConnect();
+        void closeSocket();
+
+        void setRecvCallback(RecvCallback call)
+        {
+            _call = call;
+        }
     private:
+        void _closeSocket();
         int                         _fd = -1;
         std::unique_ptr<TcpConnect> _tcp_connect;
         InetAddress                 _server_addr;
-        EventLoop                   _event_loop; 
+        EventLoop                   _event_loop;
+        RecvCallback                _call;
 };
 
 }

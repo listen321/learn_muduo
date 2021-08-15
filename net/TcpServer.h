@@ -28,16 +28,24 @@ class TcpServer
 
         void addConnect();
         void removeConnect(uint64_t id);
+        
 
         static uint64_t getTcpConnectId();
         using TcpConnHashMap = std::unordered_map<uint64_t, TcpConnect>;
+
+        void setRecvCallback(RecvCallback&& call)
+        {
+            this->_recv_call = call;
+        }
     private:
+        std::mutex     _m;
         InetAddress    _addr;
         Socket         _socket;
         EventLoop      _accept_pool;
         ThreadPool     _thread_pool;
         EventLoopM     _evenloop_m;
         TcpConnHashMap _conn_m;
+        RecvCallback   _recv_call;
 };
 }
 
